@@ -7,6 +7,15 @@ Este proyecto es una aplicación web desarrollada en Flask y MongoEngine para ge
 - Python 3.6 o superior
 - pip (gestor de paquetes de Python)
 
+## Descargar el repositorio
+
+- Clona el repositorio.
+
+```bash
+git clone https://github.com/GiomarMC/PROCEEDINGS_EVENTS.git
+```
+- Cambia a la carpeta del proyecto y continua con la instalacion del entorno virtual.
+
 ## Creación y Activación de un Entorno Virtual
 
 ### En Windows
@@ -16,13 +25,13 @@ Este proyecto es una aplicación web desarrollada en Flask y MongoEngine para ge
 3. Crea un entorno virtual con el siguiente comando:
 
     ```bash
-    python -m venv .venv
+    py -3 -m venv .venv
     ```
 
 4. Activa el entorno virtual:
 
     ```bash
-    .\.venv\Scripts\activate
+    .venv\Scripts\activate
     ```
 
 ### En Linux/MacOS
@@ -32,13 +41,13 @@ Este proyecto es una aplicación web desarrollada en Flask y MongoEngine para ge
 3. Crea un entorno virtual con el siguiente comando:
 
     ```bash
-    python3 -m venv env
+    python3 -m venv .venv
     ```
 
 4. Activa el entorno virtual:
 
     ```bash
-    source env/bin/activate
+    . .venv/bin/activate
     ```
 
 ## Instalación de Requerimientos

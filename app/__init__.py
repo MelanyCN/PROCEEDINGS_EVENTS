@@ -1,5 +1,14 @@
 from flask import Flask
+from config import Config
+from app.infraestructura.extension import db
+from app.presentacion.routes import configure_routes
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-from app.presentacion import routes
+    db.init_app(app)
+
+    configure_routes(app)
+
+    return app

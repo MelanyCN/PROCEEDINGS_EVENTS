@@ -1,8 +1,7 @@
-from mongoengine import connect
+import os
 
-#def init_db():
-#    connect(db='nombre_del_db', host='localhost', port=27017)
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    DEBUG = True
-    SECRET_KEY = 'supersecretkey'
+    SQLALCHEMY_DATABASE_URI = f'sqlite:///{os.path.join(BASE_DIR, "database/proceedings_events.db")}'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

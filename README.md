@@ -32,13 +32,13 @@ Este proyecto es una aplicación web desarrollada en Flask y MongoEngine para ge
 3. Crea un entorno virtual con el siguiente comando:
 
     ```bash
-    python3 -m venv env
+    python3 -m venv .venv
     ```
 
 4. Activa el entorno virtual:
 
     ```bash
-    source env/bin/activate
+    . .venv/bin/activate
     ```
 
 ## Instalación de Requerimientos

@@ -1,55 +1,49 @@
-# Proyecto de Página Web de Proceedings de Eventos
+## Prácticas de Codificación Legible Aplicadas
 
-Este proyecto es una aplicación web desarrollada en Flask y MongoEngine para gestionar los proceedings de eventos.
+### 1. Uso de Nombres Descriptivos
 
-## Requisitos Previos
+Se han usado nombres descriptivos para métodos y variables, lo que facilita la comprensión del código sin necesidad de una documentación extensa. Los nombres como `crear`, `obtener`, `actualizar`, `eliminar`, y `convocatoria_org` indican claramente la función de cada método o variable.
 
-- Python 3.6 o superior
-- pip (gestor de paquetes de Python)
+**Ejemplo:**
 
-## Creación y Activación de un Entorno Virtual
+```python
+def obtener(self, id: int):
+    """Obtiene una convocatoria por su ID."""
+    # ...
+```
 
-### En Windows
+### 2. Comentarios Claros y Concisos
 
-1. Abre una terminal (cmd, PowerShell, o Git Bash).
-2. Navega al directorio del proyecto.
-3. Crea un entorno virtual con el siguiente comando:
+**Docstrings:** Se han añadido docstrings a cada método para explicar su propósito, los parámetros que acepta, y lo que devuelve. Esto ayuda a otros desarrolladores a entender rápidamente el propósito de cada función.
 
-    ```bash
-    python -m venv .venv
-    ```
+**Comentarios en el Código:** Además, se han añadido comentarios en lugares clave para explicar decisiones de diseño o manejo de errores. Estos comentarios son breves pero informativos, proporcionando contexto adicional cuando es necesario.
 
-4. Activa el entorno virtual:
+**Ejemplo:**
 
-    ```bash
-    .\.venv\Scripts\activate
-    ```
+```python
+def crear(self, convocatoria_org: ConvocatoriaOrgModelo):
+    """Crea una nueva convocatoria en la base de datos.
 
-### En Linux/MacOS
+    Args:
+        convocatoria_org (ConvocatoriaOrgModelo): La convocatoria a ser agregada a la base de datos.
+    """
+    try:
+        db.session.add(convocatoria_org)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        raise RuntimeError(f"Error al crear la convocatoria: {str(e)}")
+```
 
-1. Abre una terminal.
-2. Navega al directorio del proyecto.
-3. Crea un entorno virtual con el siguiente comando:
+### 3. Manejo de Errores
 
-    ```bash
-    python3 -m venv env
-    ```
+Se ha implementado un manejo de errores robusto utilizando bloques `try-except`. Esto permite capturar excepciones, revertir transacciones fallidas (rollback), y relanzar errores con mensajes descriptivos que facilitan el diagnóstico y la corrección de problemas.
 
-4. Activa el entorno virtual:
+**Ejemplo:**
 
-    ```bash
-    source env/bin/activate
-    ```
-
-## Instalación de Requerimientos
-
-Una vez que el entorno virtual esté activado, instala los paquetes necesarios usando el archivo `requirements.txt`.
-
-1. Asegúrate de estar en el directorio del proyecto y que el entorno virtual esté activado.
-2. Ejecuta el siguiente comando:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-Esto instalará Flask, MongoEngine y todas las demás dependencias necesarias para el proyecto.
+```python
+except Exception as e:
+    db.session.rollback()
+    raise RuntimeError(f"Error al crear la convocatoria: {str(e)}")
+```
+```

@@ -6,11 +6,11 @@ from app.dominio.documento.autor import Autor
 
 from app.infraestructura.repositorio.sqlite3.evento_repositorio_impl import EventoRepositorioImpl
 from app.aplicacion.controller.evento_controller_impl import EventoControllerImpl
-from app.dominio.edicion_evento.evento import Evento
+from app.infraestructura.modelo.evento_modelo import EventoModelo  # Asegúrate de importar EventoModelo
 
 from app.aplicacion.controller.edicion_controller_impl import EdicionControllerImpl
 from app.infraestructura.repositorio.sqlite3.edicion_repositorio_impl import EdicionRepositorioImpl
-from app.dominio.edicion_evento.edicion import Edicion
+from app.dominio.evento.edicion import Edicion
 
 from datetime import datetime
 
@@ -35,14 +35,32 @@ def configure_routes(app):
     configurar_rutas_eventos(app)
     configurar_rutas_ediciones(app)
 
+### Cookbook: Funciones Auxiliares
+def parse_fecha(fecha_str):
+    """Convierte una cadena de texto de fecha en un objeto datetime.date."""
+    return datetime.strptime(fecha_str, "%Y-%m-%d").date() if fecha_str else None
+
+def parse_autor(data):
+    """Convierte un diccionario en un objeto Autor."""
+    return Autor(**data) if data else None
+
+def actualizar_atributos(obj, data):
+    """Actualiza los atributos de un objeto con los datos proporcionados."""
+    for key, value in data.items():
+        setattr(obj, key, value)
+
+### Configuración de rutas con Pipeline
 def configurar_rutas_documentos(app):
     """Configura las rutas para documentos."""
     @app.route('/documento', methods=['POST'])
     def crear_documento():
         data = request.get_json()
-        fecha_publicacion = parse_fecha(data.get('fecha_publicacion'))
-        autor = parse_autor(data.pop('autor', {}))
-        documento = Documento(fecha_publicacion=fecha_publicacion, autor=autor, **data)
+        documento = Documento(
+            titulo=data['titulo'],
+            descripcion=data['descripcion'],
+            fecha_publicacion=parse_fecha(data['fecha_publicacion']),
+            autor=parse_autor(data['autor'])
+        )
         documento_controller.crear_documento(documento)
         return jsonify(documento.to_dict()), 201
 
@@ -74,29 +92,45 @@ def configurar_rutas_eventos(app):
     @app.route('/evento', methods=['POST'])
     def crear_evento():
         data = request.get_json()
-        evento = Evento(**data)
-        evento_controller.crear_evento(evento)
-        return jsonify(evento.to_dict()), 201
+        nombre = data.get('nombre')
+        fecha_str = data.get('fecha')
+        fecha = parse_fecha(fecha_str)
+
+        # Cookbook: Uso de función auxiliar para crear el evento
+        evento_modelo = EventoModelo(nombre=nombre, fecha=fecha)
+        evento_controller.crear_evento(evento_modelo)
+        return jsonify(evento_modelo.to_dict()), 201
 
     @app.route('/evento/<int:id>', methods=['GET'])
     def obtener_evento(id):
         evento = evento_controller.obtener_evento(id)
         if evento:
             return jsonify(evento.to_dict())
-        return jsonify({"error": EVENTO_NO_ENCONTRADO}), 404
+        else:
+            return jsonify({"error": EVENTO_NO_ENCONTRADO}), 404
 
     @app.route('/evento/<int:id>', methods=['PUT'])
     def actualizar_evento(id):
         data = request.get_json()
-        evento = evento_controller.obtener_evento(id)
-        if evento:
-            actualizar_atributos(evento, data)
+        nombre = data.get('nombre')
+        fecha_str = data.get('fecha')
+        fecha = parse_fecha(fecha_str)
+
+        # Error/Exception Handling
+        try:
+            evento = EventoModelo.query.get(id)
+            if not evento:
+                return jsonify({"error": EVENTO_NO_ENCONTRADO}), 404
+            evento.nombre = nombre
+            evento.fecha = fecha
             evento_controller.actualizar_evento(evento)
             return jsonify(evento.to_dict())
-        return jsonify({"error": EVENTO_NO_ENCONTRADO}), 404
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
 
     @app.route('/evento/<int:id>', methods=['DELETE'])
     def eliminar_evento(id):
+        """Elimina un evento por su ID."""
         if evento_controller.eliminar_evento(id):
             return jsonify({"mensaje": "Evento eliminado"}), 200
         return jsonify({"error": EVENTO_NO_ENCONTRADO}), 404
@@ -135,17 +169,3 @@ def configurar_rutas_ediciones(app):
             edicion_controller.eliminar_edicion(id)
             return jsonify({"mensaje": "Edición eliminada"}), 200
         return jsonify({"error": EDICION_NO_ENCONTRADA}), 404
-
-# Funciones auxiliares
-def parse_fecha(fecha_str):
-    """Convierte una cadena de texto de fecha en un objeto datetime.date."""
-    return datetime.strptime(fecha_str, "%Y-%m-%d").date() if fecha_str else None
-
-def parse_autor(data):
-    """Convierte un diccionario en un objeto Autor."""
-    return Autor(**data) if data else None
-
-def actualizar_atributos(obj, data):
-    """Actualiza los atributos de un objeto con los datos proporcionados."""
-    for key, value in data.items():
-        setattr(obj, key, value)

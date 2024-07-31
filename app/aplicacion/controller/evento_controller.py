@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from app.dominio.edicion_evento.evento import Evento
-from app.dominio.edicion_evento.edicion import Edicion
-from app.dominio.edicion_evento.evento_repositorio import EventoRepositorio
-from app.dominio.edicion_evento.edicion_repositorio import EdicionRepositorio
+from app.dominio.evento.evento import Evento
+from app.dominio.evento.edicion import Edicion
+from app.dominio.evento.evento_repositorio import EventoRepositorio
+from app.dominio.evento.edicion_repositorio import EdicionRepositorio
 
 # Interfaces para controladores
 class EventoController(ABC):

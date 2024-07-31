@@ -1,4 +1,4 @@
-from app.dominio.edicion_evento.programa_repositorio import ProgramaRepositorio
+from app.dominio.evento.programa_repositorio import ProgramaRepositorio
 from app.infraestructura.modelo.programa_modelo import ProgramaModelo
 from app.infraestructura.extension import db
 

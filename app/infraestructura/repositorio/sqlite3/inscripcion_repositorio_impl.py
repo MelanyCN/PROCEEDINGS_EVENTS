@@ -1,4 +1,4 @@
-from app.dominio.edicion_evento.inscripcion_repositorio import InscripcionRepositorio
+from app.dominio.evento.inscripcion_repositorio import InscripcionRepositorio
 from app.infraestructura.modelo.inscripcion_modelo import InscripcionModelo
 from app.infraestructura.extension import db
 

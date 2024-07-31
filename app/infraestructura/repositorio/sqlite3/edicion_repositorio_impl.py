@@ -1,4 +1,4 @@
-from app.dominio.edicion_evento.edicion_repositorio import EdicionRepositorio
+from app.dominio.evento.edicion_repositorio import EdicionRepositorio
 from app.infraestructura.modelo.edicion_modelo import EdicionModelo
 from app.infraestructura.extension import db
 

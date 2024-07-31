@@ -1,5 +1,5 @@
 from app.infraestructura.extension import db
-from app.dominio.edicion_evento.convocatoria_org import ConvocatoriaOrg as ConvocatoriaOrgDominio
+from app.dominio.evento.convocatoria_org import ConvocatoriaOrg as ConvocatoriaOrgDominio
 
 class ConvocatoriaOrgModelo(db.Model):
     """Modelo de datos para Convocatorias de Organización en la base de datos."""

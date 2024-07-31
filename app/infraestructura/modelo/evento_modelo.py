@@ -1,5 +1,5 @@
 from app.infraestructura.extension import db
-from app.dominio.edicion_evento.evento import Evento as EventoDominio
+from app.dominio.evento.evento import Evento as EventoDominio
 
 class EventoModelo(db.Model):
     """Modelo de datos para Eventos en la base de datos."""

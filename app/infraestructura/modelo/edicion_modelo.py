@@ -1,5 +1,5 @@
 from app.infraestructura.extension import db
-from app.dominio.edicion.edicion import Edicion as EdicionDominio
+from app.dominio.evento.edicion import Edicion as EdicionDominio
 from datetime import datetime
 
 class EdicionModelo(db.Model):

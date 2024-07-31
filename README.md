@@ -1,3 +1,77 @@
+
+## Estilos de Programación
+
+En este proyecto se han implementado varios estilos de programación para estructurar el código de manera efectiva y facilitar su mantenimiento y comprensión. A continuación, se describen los estilos utilizados y se proporcionan fragmentos de código representativos:
+
+### 1. Cookbook
+Se han utilizado funciones auxiliares para realizar operaciones comunes, encapsulando lógica reutilizable y simplificando el código principal.
+
+**Fragmento de Código:**
+```python
+def parse_fecha(fecha_str):
+    """Convierte una cadena de texto de fecha en un objeto datetime.date."""
+    return datetime.strptime(fecha_str, "%Y-%m-%d").date() if fecha_str else None
+
+def parse_autor(data):
+    """Convierte un diccionario en un objeto Autor."""
+    return Autor(**data) if data else None
+```
+
+### 2. Pipeline
+Las rutas en la aplicación se configuran de manera secuencial, utilizando funciones que encadenan operaciones para manejar las solicitudes HTTP.
+
+**Fragmento de Código:**
+```python
+def configurar_rutas_documentos(app):
+    """Configura las rutas para documentos."""
+    @app.route('/documento', methods=['POST'])
+    def crear_documento():
+        data = request.get_json()
+        documento = Documento(
+            titulo=data['titulo'],
+            descripcion=data['descripcion'],
+            fecha_publicacion=parse_fecha(data['fecha_publicacion']),
+            autor=parse_autor(data['autor'])
+        )
+        documento_controller.crear_documento(documento)
+        return jsonify(documento.to_dict()), 201
+```
+
+### 3. Error/Exception Handling
+Se maneja de manera explícita la captura de errores para proporcionar respuestas claras en caso de fallos.
+
+**Fragmento de Código:**
+```python
+@app.route('/evento/<int:id>', methods=['PUT'])
+def actualizar_evento(id):
+    data = request.get_json()
+    try:
+        evento = EventoModelo.query.get(id)
+        if not evento:
+            return jsonify({"error": EVENTO_NO_ENCONTRADO}), 404
+        evento.nombre = data.get('nombre')
+        evento.fecha = parse_fecha(data.get('fecha'))
+        evento_controller.actualizar_evento(evento)
+        return jsonify(evento.to_dict())
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+```
+
+### 4. Restful
+El diseño de la API sigue los principios REST, utilizando rutas y métodos HTTP estándar para operaciones CRUD.
+
+**Fragmento de Código:**
+```python
+@app.route('/evento/<int:id>', methods=['DELETE'])
+def eliminar_evento(id):
+    """Elimina un evento por su ID."""
+    if evento_controller.eliminar_evento(id):
+        return jsonify({"mensaje": "Evento eliminado"}), 200
+    return jsonify({"error": "Evento no encontrado"}), 404
+```
+
+---
+
 # Principios SOLID Aplicados
 
 ### 1. Separación de Responsabilidades (SRP)

@@ -1,5 +1,5 @@
-from app.dominio.edicion_evento.convocatoria_repositorio import ConvocatoriaRepositorio
-from app.dominio.edicion_evento.convocatoria_org import ConvocatoriaOrg
+from app.dominio.evento.convocatoria_repositorio import ConvocatoriaRepositorio
+from app.dominio.evento.convocatoria_org import ConvocatoriaOrg
 from app.infraestructura.extension import db
 
 class ConvocatoriaRepositorioImpl(ConvocatoriaRepositorio):

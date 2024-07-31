@@ -1,5 +1,5 @@
 from app.infraestructura.extension import db
-from app.dominio.edicion_evento.programa import Programa as ProgramaDominio
+from app.dominio.evento.programa import Programa as ProgramaDominio
 
 class ProgramaModelo(db.Model):
     """Modelo de datos para Programas en la base de datos."""

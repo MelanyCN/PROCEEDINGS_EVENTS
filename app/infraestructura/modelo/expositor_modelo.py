@@ -1,5 +1,5 @@
 from app.infraestructura.extension import db
-from app.dominio.edicion_evento.expositor import Expositor as ExpositorDominio
+from app.dominio.evento.expositor import Expositor as ExpositorDominio
 
 class ExpositorModelo(db.Model):
     """Modelo de datos para Expositores en la base de datos."""

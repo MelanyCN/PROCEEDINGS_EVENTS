@@ -1,5 +1,5 @@
 from app.infraestructura.extension import db
-from app.dominio.edicion_evento.inscripcion import Inscripcion as InscripcionDominio
+from app.dominio.evento.inscripcion import Inscripcion as InscripcionDominio
 
 class InscripcionModelo(db.Model):
     """Modelo de datos para Inscripciones en la base de datos."""

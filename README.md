@@ -200,3 +200,133 @@ class DocumentoRepositorioImpl(DocumentoRepositorio):
         documento_modelo = DocumentoModelo.query.get(id)
         return documento_modelo.to_domain() if documento_modelo else None
 ```
+
+## Estilos de Programacion Aplicados
+
+### Manejo de Errores/Excepciones
+
+**Descripcion:** Este estilo se enfoca en la captura y manejo adecuado de errores y excepciones, garantizando que la aplicación pueda manejar situaciones inesperadas de manera controlada y proporcionar mensajes de error claros al usuario o al sistema.
+
+**Fragmento de codigo**
+
+```python
+def crear_documento():
+    data = request.get_json()
+    try:
+        fecha_publicacion = data.get('fecha_publicacion')
+        if fecha_publicacion:
+            data['fecha_publicacion'] = datetime.strptime(fecha_publicacion, "%Y-%m-%d").date()
+        
+        autor_data = data.pop('autor', {})
+        autor = Autor(**autor_data)
+        documento = Documento(autor=autor, **data)
+        documento_controller.crear_documento(documento)
+        return jsonify(documento.to_dict()), 201
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+```
+
+### Tablas Persistentes
+
+**Descripcion:** Este estilo implica el uso de tablas en una base de datos para almacenar y persistir datos de manera estructurada. Es común en aplicaciones que requieren que los datos sean duraderos y accesibles para futuras consultas o modificaciones.
+
+**Fragmentos de Codigo**
+
+```python
+from app.infraestructura.extension import db
+from app.dominio.documento.documento import Documento as DocumentoDominio
+
+class DocumentoModelo(db.Model):
+    __tablename__ = 'documentos'
+    
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    titulo = db.Column(db.String(150), nullable=False)
+    descripcion = db.Column(db.Text, nullable=True)
+    fecha_publicacion = db.Column(db.Date, nullable=True)
+    autor_id = db.Column(db.Integer, nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "titulo": self.titulo,
+            "descripcion": self.descripcion,
+            "fecha_publicacion": self.fecha_publicacion.isoformat() if self.fecha_publicacion else None,
+            "autor_id": self.autor_id
+        }
+
+    @staticmethod
+    def from_domain(documento_dominio: DocumentoDominio):
+        return DocumentoModelo(
+            id=documento_dominio.id,
+            titulo=documento_dominio.titulo,
+            descripcion=documento_dominio.descripcion,
+            fecha_publicacion=documento_dominio.fecha_publicacion,
+            autor_id=documento_dominio.autor.id
+        )
+
+    def to_domain(self):
+        return DocumentoDominio(
+            id=self.id,
+            titulo=self.titulo,
+            descripcion=self.descripcion,
+            fecha_publicacion=self.fecha_publicacion,
+            autor=None
+        )
+```
+
+### API RESTful
+
+**Descripcion:** RESTful es un estilo arquitectónico para diseñar servicios web que utilizan operaciones HTTP estándar. Este estilo se centra en el uso de verbos HTTP para operaciones CRUD y en la estructuración de las URL de manera lógica y consistente.
+
+**Fragmento de Codigo**
+
+```python
+def configure_routes(app):
+
+    def documento_no_encontrado():
+        return jsonify({"error": "Documento no encontrado"}), 404
+
+    @app.route('/documento', methods=['POST'])
+    def crear_documento():
+        data = request.get_json()
+        try:
+            fecha_publicacion = data.get('fecha_publicacion')
+            if fecha_publicacion:
+                data['fecha_publicacion'] = datetime.strptime(fecha_publicacion, "%Y-%m-%d").date()
+            
+            autor_data = data.pop('autor', {})
+            autor = Autor(**autor_data)
+            documento = Documento(autor=autor, **data)
+            documento_controller.crear_documento(documento)
+            return jsonify(documento.to_dict()), 201
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+
+    @app.route('/documento/<int:id>', methods=['GET'])
+    def obtener_documento(id):
+        documento = documento_controller.obtener_documento(id)
+        if documento:
+            return jsonify(documento.to_dict())
+        else:
+            return documento_no_encontrado()
+
+    @app.route('/documento/<int:id>', methods=['PUT'])
+    def actualizar_documento(id):
+        data = request.get_json()
+        documento = documento_controller.obtener_documento(id)
+        if documento:
+            for key, value in data.items():
+                setattr(documento, key, value)
+            documento_controller.actualizar_documento(documento)
+            return jsonify(documento.to_dict())
+        else:
+            return documento_no_encontrado()
+
+    @app.route('/documento/<int:id>', methods=['DELETE'])
+    def eliminar_documento(id):
+        resultado = documento_controller.eliminar_documento(id)
+        if resultado:
+            return jsonify({"mensaje": "Documento eliminado"}), 200
+        else:
+            return documento_no_encontrado()
+```

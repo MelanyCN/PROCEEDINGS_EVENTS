@@ -53,3 +53,83 @@ Una vez que el entorno virtual esté activado, instala los paquetes necesarios u
     ```
 
 Esto instalará Flask, MongoEngine y todas las demás dependencias necesarias para el proyecto.
+
+# Implementaciones
+
+Este repositorio contiene la implementación de un sistema para la gestión de eventos y sus correspondientes entidades como documentos, autores, ediciones, inscripciones, expositores, y programas. La aplicación sigue los principios de la arquitectura limpia, utilizando Flask como framework web y SQLAlchemy con SQLite para la gestión de datos. A continuación, se describen las prácticas de codificación legible empleadas en este proyecto, junto con fragmentos de código ilustrativos.
+
+## Practicas de codificacion legible
+
+### Uso de Nombres descripctivos
+
+**Practica:** Asignar nombres claros y descriptivos a variables, funciones y clases para facilitar la comprensión del código. Esto incluye usar nombres que reflejen claramente la función o propósito del elemento de código.
+
+**Fragmento de codigo**
+
+```python
+class DocumentoRepositorioImpl(DocumentoRepositorio):
+    def crear(self, documento):
+        documento_modelo = DocumentoModelo.from_domain(documento)
+        db.session.add(documento_modelo)
+        db.session.commit()
+
+```
+
+### Separacion de Responsabilidades
+
+**Practica:** Mantener la lógica separada en diferentes capas de la aplicación, como controladores, repositorios y modelos. Esto mejora la organización del código y facilita el mantenimiento.
+
+**Fragmento de Codigo**
+
+```python
+class DocumentoRepositorioImpl(DocumentoRepositorio):
+    def crear(self, documento):
+        documento_modelo = DocumentoModelo.from_domain(documento)
+        db.session.add(documento_modelo)
+        db.session.commit()
+```
+
+### Conversion entre Dominios y Modelos de Base de datos
+
+**Practica:** Implementar métodos para convertir entre objetos de dominio y modelos de base de datos. Esto permite una separación clara entre la lógica de negocio y la lógica de persistencia.
+
+**Fragmento de Codigo**
+
+```python
+@staticmethod
+def from_domain(documento_dominio: DocumentoDominio):
+    return DocumentoModelo(
+        id=documento_dominio.id,
+        titulo=documento_dominio.titulo,
+        descripcion=documento_dominio.descripcion,
+        fecha_publicacion=documento_dominio.fecha_publicacion,
+        autor_id=documento_dominio.autor.id
+    )
+
+def to_domain(self):
+    return DocumentoDominio(
+        id=self.id,
+        titulo=self.titulo,
+        descripcion=self.descripcion,
+        fecha_publicacion=self.fecha_publicacion,
+        autor=None
+    )
+```
+
+### Uso de Metodos Estaticos para Conversiones
+
+**Practica:** Implementar métodos estáticos en los modelos de base de datos para convertir objetos de dominio a modelos de base de datos y viceversa. Esto centraliza la lógica de conversión y evita duplicación de código.
+
+**Fragmento de Codigo**
+
+```python
+@staticmethod
+def from_domain(documento_dominio: DocumentoDominio):
+    return DocumentoModelo(
+        id=documento_dominio.id,
+        titulo=documento_dominio.titulo,
+        descripcion=documento_dominio.descripcion,
+        fecha_publicacion=documento_dominio.fecha_publicacion,
+        autor_id=documento_dominio.autor.id
+    )
+```

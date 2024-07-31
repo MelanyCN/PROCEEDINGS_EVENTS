@@ -16,16 +16,18 @@ def configure_routes(app):
     @app.route('/documento', methods=['POST'])
     def crear_documento():
         data = request.get_json()
-        
-        fecha_publicacion = data.get('fecha_publicacion')
-        if fecha_publicacion:
-            data['fecha_publicacion'] = datetime.strptime(fecha_publicacion, "%Y-%m-%d").date()
-        
-        autor_data = data.pop('autor', {})
-        autor = Autor(**autor_data)
-        documento = Documento(autor=autor, **data)
-        documento_controller.crear_documento(documento)
-        return jsonify(documento.to_dict()), 201
+        try:
+            fecha_publicacion = data.get('fecha_publicacion')
+            if fecha_publicacion:
+                data['fecha_publicacion'] = datetime.strptime(fecha_publicacion, "%Y-%m-%d").date()
+            
+            autor_data = data.pop('autor', {})
+            autor = Autor(**autor_data)
+            documento = Documento(autor=autor, **data)
+            documento_controller.crear_documento(documento)
+            return jsonify(documento.to_dict()), 201
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
 
     @app.route('/documento/<int:id>', methods=['GET'])
     def obtener_documento(id):

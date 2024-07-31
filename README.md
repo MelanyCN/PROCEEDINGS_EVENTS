@@ -133,3 +133,70 @@ def from_domain(documento_dominio: DocumentoDominio):
         autor_id=documento_dominio.autor.id
     )
 ```
+
+## Principios SOLID aplicados
+
+### Principio de Responsabilidad unica
+
+**Practica:** Una clase debe tener una única responsabilidad o razón para cambiar. Este principio se asegura de que cada clase se enfoque en una tarea específica, lo que facilita el mantenimiento y la comprensión del código.
+
+**Fragmento de Codigo** 
+
+```python
+class DocumentoRepositorioImpl(DocumentoRepositorio):
+    def crear(self, documento):
+        documento_modelo = DocumentoModelo.from_domain(documento)
+        db.session.add(documento_modelo)
+        db.session.commit()
+
+    def obtener(self, id):
+        documento_modelo = DocumentoModelo.query.get(id)
+        return documento_modelo.to_domain() if documento_modelo else None
+```
+
+### Principio Abierto/Cerrado
+
+**Practica:** El código debe estar abierto para extensión, pero cerrado para modificación. Esto significa que el comportamiento de una clase debe poder extenderse sin modificar su código fuente, facilitando la adición de nuevas funcionalidades sin afectar el código existente.
+
+```python
+@staticmethod
+def from_domain(documento_dominio: DocumentoDominio):
+    return DocumentoModelo(
+        id=documento_dominio.id,
+        titulo=documento_dominio.titulo,
+        descripcion=documento_dominio.descripcion,
+        fecha_publicacion=documento_dominio.fecha_publicacion,
+        autor_id=documento_dominio.autor.id
+    )
+
+def to_domain(self):
+    return DocumentoDominio(
+        id=self.id,
+        titulo=self.titulo,
+        descripcion=self.descripcion,
+        fecha_publicacion=self.fecha_publicacion,
+        autor=None
+    )
+```
+
+### Principio de Sustitucion de Liskov
+
+**Practica:** Las clases derivadas deben ser sustituibles por sus clases base sin alterar el comportamiento esperado del programa. En otras palabras, un objeto de una clase derivada debe poder reemplazar un objeto de la clase base sin que el programa falle o se comporte incorrectamente.
+
+**Fragmento de Codigo**
+
+```python
+class DocumentoRepositorioImpl(DocumentoRepositorio):
+    def __init__(self):
+        # This method is intentionally left empty.
+        pass
+
+    def crear(self, documento):
+        documento_modelo = DocumentoModelo.from_domain(documento)
+        db.session.add(documento_modelo)
+        db.session.commit()
+
+    def obtener(self, id):
+        documento_modelo = DocumentoModelo.query.get(id)
+        return documento_modelo.to_domain() if documento_modelo else None
+```

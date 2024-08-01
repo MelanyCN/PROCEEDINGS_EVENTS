@@ -10,18 +10,11 @@ class DocumentoModelo(db.Model):
     fecha_publicacion = db.Column(db.Date, nullable=True)
     link_imagen = db.Column(db.Text, nullable=False)
     link_documento = db.Column(db.Text, nullable=False)
-    autor_id = db.Column(db.Integer, db.ForeignKey('autores.id_autor'), nullable=False)
+    autor_id = db.Column(db.Integer, db.ForeignKey('autores.id'), nullable=False)
     
-    autor = db.relationship('AutorModelo', backref=db.backref('documentos', lazy=True))
+    autor = db.relationship('AutorModelo', back_populates='documentos')
 
-    @staticmethod
     def to_dict(self):
-        """
-        Convierte la instancia del modelo SQLAlchemy a un diccionario. 
-        
-        Returns:
-            dict: Una representación en diccionario de la instancia de DocumentoModelo.
-        """
         return {
             "id": self.id,
             "titulo": self.titulo,
@@ -31,14 +24,20 @@ class DocumentoModelo(db.Model):
             "link_documento": self.link_documento,
             "autor_id": self.autor_id
         }
-    
+
+    @staticmethod
+    def from_domain(documento_dominio: DocumentoDominio):
+        return DocumentoModelo(
+            id=documento_dominio.id,
+            titulo=documento_dominio.titulo,
+            descripcion=documento_dominio.descripcion,
+            fecha_publicacion=documento_dominio.fecha_publicacion,
+            link_imagen=documento_dominio.link_imagen,
+            link_documento=documento_dominio.link_documento,
+            autor_id=documento_dominio.autor_id
+        )
+
     def to_domain(self):
-        """
-        Convierte la instancia de DocumentoModelo en una entidad de dominio.
-        
-        Returns:
-            DocumentoDominio: La entidad de dominio del documento.
-        """
         return DocumentoDominio(
             id=self.id,
             titulo=self.titulo,
@@ -48,4 +47,3 @@ class DocumentoModelo(db.Model):
             link_documento=self.link_documento,
             autor_id=self.autor_id
         )
-

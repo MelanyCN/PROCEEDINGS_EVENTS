@@ -1,6 +1,8 @@
 from flask import request, jsonify
+from typing import Optional, Dict
+
 from app.aplicacion.servicios.documento_servicio import DocumentoServicioImpl
-from app.infraestructura.repositorio.sqlite3.documento_repositorio_impl import DocumentoRepositorioImpl
+from app.infraestructura.repositorio.sqlite3.documento_repositorio_impl import DocumentoRepositorioImpl 
 from app.dominio.documento.documento import Documento
 from app.dominio.documento.autor import Autor
 
@@ -24,6 +26,12 @@ from app.aplicacion.servicios.inscripcion_servicio import InscripcionServicioImp
 from app.infraestructura.repositorio.sqlite3.inscripcion_repositorio_impl import InscripcionRepositorioImpl
 from app.dominio.evento.inscripcion import Inscripcion
 
+# PARA RUTAS DE AUTOR
+from app.aplicacion.servicios.autor_servicio import AutorServicioImpl
+from app.infraestructura.repositorio.sqlite3.autor_repositorio_impl import AutorRepositorioImpl
+from app.dominio.documento.autor import Autor
+
+
 from datetime import datetime
 
 # Configuración de repositorios y controladores
@@ -45,6 +53,10 @@ convocatoria_org_servicio = ConvocatoriaOrgServicioImpl(convocatoria_org_repo)
 inscripcion_repo = InscripcionRepositorioImpl()
 inscripcion_servicio = InscripcionServicioImpl(inscripcion_repo)
 
+# Configuración del repositorio y servicio de autores
+autor_repo = AutorRepositorioImpl()
+autor_servicio = AutorServicioImpl(autor_repo)
+
 # Constantes para mensajes de error
 DOCUMENTO_NO_ENCONTRADO = "Documento no encontrado"
 EVENTO_NO_ENCONTRADO = "Evento no encontrado"
@@ -52,6 +64,8 @@ EDICION_NO_ENCONTRADA = "Edición no encontrada"
 EXPOSITOR_NO_ENCONTRADO = "Expositor no encontrado"
 CONVOCATORIA_NO_ENCONTRADA = "Convocatoria de organización no encontrada"
 INSCRIPCION_NO_ENCONTRADA = "Inscripción no encontrada"
+AUTOR_NO_ENCONTRADO_MSG = "Autor buscado no encontrado"
+DOCUMENTOS_NO_ENCONTRADOS = "Documentos no encontados"
 
 def configure_routes(app):
     """Configura las rutas de la aplicación."""
@@ -61,15 +75,28 @@ def configure_routes(app):
     configurar_rutas_expositor(app)
     configurar_rutas_convocatorias(app)
     configurar_rutas_inscripciones(app)
+    configurar_rutas_autores(app)
 
 ### Cookbook: Funciones Auxiliares
-def parse_fecha(fecha_str):
-    """Convierte una cadena de texto de fecha en un objeto datetime.date."""
-    return datetime.strptime(fecha_str, "%Y-%m-%d").date() if fecha_str else None
+def parse_fecha(fecha_str: str) -> Optional[datetime]:
+    try:
+        return datetime.fromisoformat(fecha_str)
+    except ValueError as e:
+        print(f"Error al parsear la fecha: {e}")
+        return None
 
-def parse_autor(data):
-    """Convierte un diccionario en un objeto Autor."""
-    return Autor(**data) if data else None
+def parse_autor(autor_data: Dict) -> Optional[Autor]:
+    if autor_data:
+        return Autor(
+            id=autor_data.get('id'),
+            nombre=autor_data.get('nombre'),
+            email=autor_data.get('email'),
+            afiliacion=autor_data.get('afiliacion'),
+            nacionalidad=autor_data.get('nacionalidad'),
+            area_interes=autor_data.get('area_interes'),
+            link_foto=autor_data.get('link_foto')
+        )
+    return None
 
 def actualizar_atributos(obj, data):
     """Actualiza los atributos de un objeto con los datos proporcionados."""
@@ -82,11 +109,14 @@ def configurar_rutas_documentos(app):
     @app.route('/documento', methods=['POST'])
     def crear_documento():
         data = request.get_json()
+        autor = parse_autor(data.get('autor'))
         documento = Documento(
             titulo=data['titulo'],
             descripcion=data['descripcion'],
             fecha_publicacion=parse_fecha(data['fecha_publicacion']),
-            autor=parse_autor(data['autor'])
+            link_imagen=data.get('link_imagen'),
+            link_documento=data.get('link_documento'),
+            autor_id=autor.id if autor else None  
         )
         documento_servicio.crear_documento(documento)
         return jsonify(documento.to_dict()), 201
@@ -113,6 +143,16 @@ def configurar_rutas_documentos(app):
         if documento_servicio.eliminar_documento(id):
             return jsonify({"mensaje": "Documento eliminado"}), 200
         return jsonify({"error": DOCUMENTO_NO_ENCONTRADO}), 404
+    
+    @app.route('/documento/listar', methods=['GET'])
+    def listar_documentos():
+        try:
+            documentos = documento_servicio.listar_documentos()
+            if documentos:
+                return jsonify([documento.to_dict() for documento in documentos]), 200
+            return jsonify({"error": DOCUMENTOS_NO_ENCONTRADOS}), 404
+        except Exception as ex:
+            return jsonify({"error": f"Error al listar documentos: {str(ex)}"}), 500
 
 def configurar_rutas_eventos(app):
     """Configura las rutas para eventos."""
@@ -124,15 +164,30 @@ def configurar_rutas_eventos(app):
             fecha_str = data.get('fecha')
             fecha = parse_fecha(fecha_str)
             descripcion = data.get('descripcion')
-            hora = data.get('hora')
+            hora_str = data.get('hora')
             lugar = data.get('lugar')
+            edicion_id = data.get('edicion_id')
 
-            # Cookbook: Uso de función auxiliar para crear el evento
-            evento_modelo = EventoModelo(nombre=nombre, fecha=fecha, descripcion=descripcion, hora=hora, lugar=lugar)
+            hora = datetime.strptime(hora_str, "%H:%M:%S").time() if hora_str else None
+
+            # Verificar si edicion_id está presente y es válido
+            if edicion_id is not None:
+                if not edicion_servicio.obtener_edicion(edicion_id):
+                    return jsonify({"error": "Edición no encontrada."}), 400
+            
+            # Crear el evento sin requerir una edición
+            evento_modelo = EventoModelo(
+                nombre=nombre, 
+                fecha=fecha, 
+                descripcion=descripcion, 
+                hora=hora, 
+                lugar=lugar, 
+                edicion_id=edicion_id
+            )
             evento_servicio.crear_evento(evento_modelo)
             return jsonify(evento_modelo.to_dict()), 201
         except Exception as e:
-            return jsonify({"error":f"Error al crear evento: {str(e)}"}), 400
+            return jsonify({"error": f"Error al crear evento: {str(e)}"}), 400
 
     @app.route('/evento/<int:id>', methods=['GET'])
     def obtener_evento(id):
@@ -183,9 +238,9 @@ def configurar_rutas_ediciones(app):
             data['evento_id'] = evento_id
             edicion = Edicion(
                 id=None,
-                evento_id=evento_id,
-                nombre=data.get('nombre'),
-                fecha=parse_fecha(data.get('fecha'))
+                evento_id = evento_id,
+                nombre = data.get('nombre'),
+                fecha = parse_fecha(data.get('fecha'))
             )
             edicion_servicio.crear_edicion(edicion)
             return jsonify(edicion.to_dict()), 201
@@ -372,3 +427,47 @@ def configurar_rutas_inscripciones(app):
             return jsonify({"error": INSCRIPCION_NO_ENCONTRADA}), 404
         except Exception as e:
             return jsonify({"error": f"Error al eliminar inscripción: {str(e)}"}), 400
+
+def configurar_rutas_autores(app):
+    """Configura las rutas para autores."""
+
+    @app.route('/autor', methods=['POST'])
+    def crear_autor():
+        data = request.get_json()
+        autor = Autor(
+            id=None,
+            nombre=data.get('nombre'),
+            email=data.get('email'),
+            afiliacion=data.get('afiliacion'),
+            nacionalidad=data.get('nacionalidad'),
+            area_interes=data.get('area_interes'),
+            link_foto=data.get('link_foto')
+        )
+        try:
+            autor_servicio.crear_autor(autor)
+            return jsonify(autor.to_dict()), 201
+        except Exception as e:
+            return jsonify({"error": f"Error al crear autor: {str(e)}"}), 400
+
+    @app.route('/autor/<int:id>', methods=['GET'])
+    def obtener_autor(id):
+        autor = autor_servicio.obtener_autor(id)
+        if autor:
+            return jsonify(autor.to_dict())
+        return jsonify({"error": AUTOR_NO_ENCONTRADO_MSG}), 404
+
+    @app.route('/autor/<int:id>', methods=['PUT'])
+    def actualizar_autor(id):
+        data = request.get_json()
+        autor = autor_servicio.obtener_autor(id)
+        if autor:
+            actualizar_atributos(autor, data)
+            autor_servicio.actualizar_autor(autor)
+            return jsonify(autor.to_dict())
+        return jsonify({"error": "Autor no encontrado"}), 404
+
+    @app.route('/autor/<int:id>', methods=['DELETE'])
+    def eliminar_autor(id):
+        if autor_servicio.eliminar_autor(id):
+            return jsonify({"mensaje": "Autor eliminado"}), 200
+        return jsonify({"error": "Autor no encontrado"}), 404

@@ -2,6 +2,8 @@ from app.dominio.documento.autor import AutorRepositorio
 from app.infraestructura.modelo.autor_modelo import AutorModelo
 from app.infraestructura.extension import db
 from app.dominio.excepciones import AutorRepositoryError
+from app.dominio.documento.autor import Autor
+
 
 class AutorRepositorioImpl(AutorRepositorio):
     """
@@ -14,24 +16,26 @@ class AutorRepositorioImpl(AutorRepositorio):
         """
         super().__init__()
 
-
-    def crear_autor(self, autor):
-        """
-        Crea un nuevo autor en la base de datos.
-        
-        Args:
-            autor (AutorDominio): La instancia del autor a crear.
-        """
+    def crear(self, autor: Autor):
+        """Agrega un nuevo autor a la base de datos."""
         try:
-            autor_modelo = AutorModelo.from_domain(autor)
+            autor_modelo = AutorModelo(
+                nombre=autor.nombre,
+                email=autor.email,
+                afiliacion=autor.afiliacion,
+                nacionalidad=autor.nacionalidad,
+                area_interes=autor.area_interes,
+                link_foto=autor.link_foto
+            )
             db.session.add(autor_modelo)
             db.session.commit()
+            # Recupera el ID generado
+            autor.id = autor_modelo.id
         except Exception as e:
             db.session.rollback()
-            raise AutorRepositoryError(f"Error al crear el autor: {str(e)}")
+            raise RuntimeError(f"Error al crear el autor: {str(e)}")
 
-
-    def obtener_autor(self, id):
+    def obtener(self, id):
         """
         Obtiene un autor por su identificador.
         
@@ -47,8 +51,7 @@ class AutorRepositorioImpl(AutorRepositorio):
         except Exception as e:
             raise AutorRepositoryError(f"Error al obtener el autor: {str(e)}")
 
-
-    def actualizar_autor(self, autor):
+    def actualizar(self, autor):
         """
         Actualiza un autor existente en la base de datos.
         
@@ -59,7 +62,11 @@ class AutorRepositorioImpl(AutorRepositorio):
             autor_modelo = AutorModelo.query.get(autor.id)
             if autor_modelo:
                 autor_modelo.nombre = autor.nombre
-                autor_modelo.biografia = autor.biografia
+                autor_modelo.email = autor.email
+                autor_modelo.afiliacion = autor.afiliacion
+                autor_modelo.nacionalidad = autor.nacionalidad
+                autor_modelo.area_interes = autor.area_interes
+                autor_modelo.link_foto = autor.link_foto
                 db.session.commit()
             else:
                 raise AutorRepositoryError("Autor no encontrado.")
@@ -67,8 +74,7 @@ class AutorRepositorioImpl(AutorRepositorio):
             db.session.rollback()
             raise AutorRepositoryError(f"Error al actualizar el autor: {str(e)}")
 
-
-    def eliminar_autor(self, id):
+    def eliminar(self, id):
         """
         Elimina un autor por su identificador.
         
@@ -86,8 +92,7 @@ class AutorRepositorioImpl(AutorRepositorio):
             db.session.rollback()
             raise AutorRepositoryError(f"Error al eliminar el autor: {str(e)}")
 
-
-    def listar_autores(self, id_documento):
+    def listar_autores(self):
         """
         Obtiene todos los autores de la base de datos.
         

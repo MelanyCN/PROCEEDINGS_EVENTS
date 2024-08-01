@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
-from app.dominio.documento.autor import Autor as AutorDominio
+from app.dominio.documento.autor import Autor, AutorRepositorio
 from app.dominio.excepciones import AutorRepositoryError
 
 class AutorServicio(ABC):
@@ -10,60 +10,60 @@ class AutorServicio(ABC):
     """
 
     @abstractmethod
-    def crear_autor(self, autor: AutorDominio):
+    def crear_autor(self, autor: Autor):
         """
         Crea un nuevo autor.
 
         Args:
-            autor (AutorDominio): El autor a crear.
+            autor (Autor): El autor a crear.
         """
         pass
 
     @abstractmethod
-    def obtener_autor(self, id_autor: int) -> AutorDominio:
+    def obtener_autor(self, id: int) -> Autor:
         """
         Obtiene un autor por su identificador.
 
         Args:
-            id_autor (int): El identificador del autor.
+            id (int): El identificador del autor.
 
         Returns:
-            Optional[AutorDominio]: El autor si existe, de lo contrario None.
+            Optional[Autor]: El autor si existe, de lo contrario None.
         """
         pass
 
     @abstractmethod
-    def actualizar_autor(self, autor: AutorDominio):
+    def actualizar_autor(self, autor: Autor):
         """
         Actualiza un autor existente.
 
         Args:
-            autor (AutorDominio): El autor con la información actualizada.
+            autor (Autor): El autor con la información actualizada.
         """
         pass
 
     @abstractmethod
-    def eliminar_autor(self, id_autor: int):
+    def eliminar_autor(self, id: int):
         """
         Elimina un autor por su identificador.
 
         Args:
-            id_autor (int): El identificador del autor a eliminar.
+            id (int): El identificador del autor a eliminar.
         """
         pass
 
     @abstractmethod
-    async def listar_autores(self) -> Optional[List[AutorDominio]]:
+    async def listar_autores(self) -> Optional[List[Autor]]:
         """
         Lista todos los autores.
 
         Returns:
-            List[AutorDominio]: Lista de todos los autores.
+            List[Autor]: Lista de todos los autores.
         """
         pass
 
     @abstractmethod
-    async def listar_autores_por_documento(self, id_documento: int) -> Optional[List[AutorDominio]]:
+    async def listar_autores_por_documento(self, id_documento: int) -> Optional[List[Autor]]:
         """
         Lista los autores pertenecientes a un documento específico.
 
@@ -71,7 +71,7 @@ class AutorServicio(ABC):
             id_documento (int): El identificador del documento.
 
         Returns:
-            Optional[List[AutorDominio]]: Lista de autores si existen, de lo contrario None.
+            Optional[List[Autor]]: Lista de autores si existen, de lo contrario None.
         """
         pass
 
@@ -82,7 +82,7 @@ class AutorServicioImpl(AutorServicio):
     Gestiona las operaciones relacionadas con autores utilizando un repositorio.
     """
 
-    def __init__(self, autor_repo):
+    def __init__(self, autor_repo: AutorRepositorio):
         """
         Inicializa el controlador con el repositorio de autores.
 
@@ -91,37 +91,37 @@ class AutorServicioImpl(AutorServicio):
         """
         self.autor_repo = autor_repo
 
-    def crear_autor(self, autor: AutorDominio) -> None:
+    def crear_autor(self, autor: Autor) -> None:
         try:
             self.autor_repo.crear(autor)
         except Exception as ex:
             raise AutorRepositoryError(f"Error al crear autor: {str(ex)}")
 
-    def obtener_autor(self, id_autor: int) -> Optional[AutorDominio]:
+    def obtener_autor(self, id: int) -> Optional[Autor]:
         try:
-            return self.autor_repo.obtener(id_autor)
+            return self.autor_repo.obtener(id)
         except Exception as ex:
             raise AutorRepositoryError(f"Error al obtener el autor: {str(ex)}")
 
-    def actualizar_autor(self, autor: AutorDominio) -> None:
+    def actualizar_autor(self, autor: Autor) -> None:
         try:
             self.autor_repo.actualizar(autor)
         except Exception as ex:
             raise AutorRepositoryError(f"Error al actualizar el autor: {str(ex)}")
 
-    def eliminar_autor(self, id_autor: int) -> None:
+    def eliminar_autor(self, id: int) -> None:
         try:
-            self.autor_repo.eliminar(id_autor)
+            self.autor_repo.eliminar(id)
         except Exception as ex:
             raise AutorRepositoryError(f"Error al eliminar el autor: {str(ex)}")
 
-    async def listar_autores(self) -> List[AutorDominio]:
+    async def listar_autores(self) -> List[Autor]:
         try:
             return await self.autor_repo.listar()
         except Exception as ex:
             raise AutorRepositoryError(f"Error al listar autores: {str(ex)}")
 
-    async def listar_autores_por_documento(self, id_documento: int) -> List[AutorDominio]:
+    async def listar_autores_por_documento(self, id_documento: int) -> List[Autor]:
         try:
             return await self.autor_repo.listar_por_documento(id_documento)
         except Exception as ex:

@@ -19,6 +19,7 @@ class EdicionRepositorioImpl(EdicionRepositorio):
             edicion_modelo = EdicionModelo.from_domain(edicion)
             db.session.add(edicion_modelo)
             db.session.commit()
+            edicion.id = edicion_modelo.id
         except Exception as e:
             db.session.rollback()
             raise RuntimeError(f"Error al crear la edición: {str(e)}")

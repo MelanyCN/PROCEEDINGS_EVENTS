@@ -1,13 +1,14 @@
 from abc import ABC, abstractmethod
 
 class Evento:
-    def __init__(self, id=None, nombre=None, fecha=None, descripcion=None, hora=None, lugar=None):
+    def __init__(self, id=None, nombre=None, fecha=None, descripcion=None, hora=None, lugar=None, edicion_id=None):
         self.id = id
         self.nombre = nombre
         self.fecha = fecha
         self.descripcion = descripcion
         self.hora = hora
         self.lugar = lugar
+        self.edicion_id = edicion_id
 
     def to_dict(self):
         return {
@@ -16,8 +17,21 @@ class Evento:
             "fecha": self.fecha.isoformat() if self.fecha else None,
             "descripcion": self.descripcion,
             "hora": self.hora.isoformat() if self.hora else None,
-            "lugar": self.lugar
+            "lugar": self.lugar,
+            "edicion_id": self.edicion_id
         }
+    
+    @staticmethod
+    def from_dict(data):
+        return Evento(
+            id=data.get('id'),
+            nombre=data.get('nombre'),
+            fecha=data.get('fecha'),
+            descripcion=data.get('descripcion'),
+            hora=data.get('hora'),
+            lugar=data.get('lugar'),
+            edicion_id=data.get('edicion_id')
+        )
 
 class EventoRepositorio(ABC):
     """Interfaz para el repositorio de Evento. Define métodos CRUD esenciales."""

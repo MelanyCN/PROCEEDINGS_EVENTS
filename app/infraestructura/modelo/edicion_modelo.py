@@ -11,8 +11,9 @@ class EdicionModelo(db.Model):
     nombre = db.Column(db.String(150), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
 
-    # Relación con eventos
-    eventos = db.relationship('EventoModelo', backref='edicion', lazy=True)
+    eventos = db.relationship('EventoModelo', back_populates='edicion', lazy=True)
+    
+    convocatorias_edicion = db.relationship('ConvocatoriaOrgModelo', back_populates='edicion', lazy=True)
 
     def to_dict(self):
         """Convierte la instancia de EdicionModelo en un diccionario.

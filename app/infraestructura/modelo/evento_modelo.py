@@ -15,10 +15,10 @@ class EventoModelo(db.Model):
     lugar = db.Column(db.String(100), nullable=True)
 
     edicion_id = db.Column(db.Integer, db.ForeignKey('ediciones.id'), nullable=True)
-    edicion = db.relationship('EdicionModelo', backref=db.backref('eventos', lazy=True))
+    edicion = db.relationship('EdicionModelo', back_populates='eventos')
 
-    inscripciones = db.relationship('InscripcionModelo', backref='evento', lazy=True)
-
+    inscripciones = db.relationship('InscripcionModelo', back_populates='evento', overlaps="evento_inscripcion")
+    
     def to_dict(self):
         """Convierte la instancia de EventoModelo en un diccionario.
 

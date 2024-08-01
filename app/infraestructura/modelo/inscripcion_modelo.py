@@ -8,15 +8,15 @@ class InscripcionModelo(db.Model):
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(50), nullable=False)
-    apellidos = db.Column(db.String(80), nullable=False)
-    dni = db.Column(db.String(8), nullable=False)
+    apellidos = db.Column(db.String(800), nullable=False)
+    dni = db.Column(db.Integer, nullable=False)
     ocupacion = db.Column(db.String(50), nullable=False)
     correo = db.Column(db.String(50), nullable=False)
     vaucher_url = db.Column(db.String(200), nullable=False)
 
     evento_id = db.Column(db.Integer, db.ForeignKey('eventos.id'), nullable=False)
-    evento = db.relationship('EventoModelo', backref=db.backref('inscripciones', lazy=True))
-
+    evento = db.relationship('EventoModelo', back_populates='inscripciones', overlaps="inscripciones_evento")
+    
     def to_dict(self):
         """Convierte la instancia de InscripcionModelo en un diccionario.
 

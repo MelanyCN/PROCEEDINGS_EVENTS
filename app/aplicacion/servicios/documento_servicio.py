@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List
-from app.dominio.documento.documento import Documento as DocumentoDominio
+from app.dominio.documento.documento import Documento, DocumentoRepositorio
 from app.dominio.excepciones import DocumentoRepositoryError
 
 class DocumentoServicio(ABC):
@@ -10,7 +10,7 @@ class DocumentoServicio(ABC):
     """
 
     @abstractmethod
-    def crear_documento(self, documento: DocumentoDominio):
+    def crear_documento(self, documento: Documento):
         """
         Crea un nuevo documento.
 
@@ -20,7 +20,7 @@ class DocumentoServicio(ABC):
         pass
 
     @abstractmethod
-    def obtener_documento(self, id_documento: int) -> DocumentoDominio:
+    def obtener_documento(self, id_documento: int) -> Documento:
         """
         Obtiene un documento por su identificador.
 
@@ -33,7 +33,7 @@ class DocumentoServicio(ABC):
         pass
 
     @abstractmethod
-    def actualizar_documento(self, documento: DocumentoDominio):
+    def actualizar_documento(self, documento: Documento):
         """
         Actualiza un documento existente.
 
@@ -53,7 +53,7 @@ class DocumentoServicio(ABC):
         pass
 
     @abstractmethod
-    async def listar_documentos(self, busqueda: Optional[str] = None) -> Optional[List[DocumentoDominio]]:
+    async def listar_documentos(self) -> Optional[List[Documento]]:
         """
         Lista documentos que coinciden con los criterios de búsqueda.
 
@@ -72,7 +72,7 @@ class DocumentoServicioImpl(DocumentoServicio):
     Gestiona las operaciones relacionadas con documentos utilizando un repositorio.
     """
 
-    def __init__(self, documento_repo):
+    def __init__(self, documento_repo: DocumentoRepositorio):
         """
         Inicializa el controlador con el repositorio de documentos.
 
@@ -81,19 +81,19 @@ class DocumentoServicioImpl(DocumentoServicio):
         """
         self.documento_repo = documento_repo
 
-    def crear_documento(self, documento: DocumentoDominio) -> None:
+    def crear_documento(self, documento: Documento) -> None:
         try:
             self.documento_repo.crear(documento)
         except Exception as ex:
             raise DocumentoRepositoryError(f"Error al crear documento: {str(ex)}")
 
-    def obtener_documento(self, id_documento: int) -> Optional[DocumentoDominio]:
+    def obtener_documento(self, id_documento: int) -> Optional[Documento]:
         try:
             return self.documento_repo.obtener(id_documento)
         except Exception as ex:
             raise DocumentoRepositoryError(f"Error al obtener el documento: {str(ex)}")
 
-    def actualizar_documento(self, documento: DocumentoDominio) -> None:
+    def actualizar_documento(self, documento: Documento) -> None:
         try:
             self.documento_repo.actualizar(documento)
         except Exception as ex:
@@ -105,8 +105,8 @@ class DocumentoServicioImpl(DocumentoServicio):
         except Exception as ex:
             raise DocumentoRepositoryError(f"Error al eliminar el documento: {str(ex)}")
 
-    async def listar_documentos(self, busqueda: Optional[str] = None) -> List[DocumentoDominio]:
+    def listar_documentos(self) -> List[Documento]:
         try:
-            return await self.documento_repo.listar(busqueda)
+            return self.documento_repo.listar()
         except Exception as ex:
             raise DocumentoRepositoryError(f"Error al listar documentos: {str(ex)}")

@@ -1,6 +1,7 @@
-from app.dominio.documento.documento_repositorio import DocumentoRepositorio
+from app.dominio.documento.documento import DocumentoRepositorio, Documento
 from app.infraestructura.modelo.documento_modelo import DocumentoModelo
 from app.infraestructura.extension import db
+from typing import List
 
 class DocumentoRepositorioImpl(DocumentoRepositorio):
     def __init__(self):
@@ -29,3 +30,13 @@ class DocumentoRepositorioImpl(DocumentoRepositorio):
         if documento_modelo:
             db.session.delete(documento_modelo)
             db.session.commit()
+
+    def listar(self) -> List[Documento]:
+        """
+        Lista todos los documentos en la base de datos.
+
+        Returns:
+            List[Documento]: Lista de todos los documentos como objetos del dominio.
+        """
+        documentos_modelo = DocumentoModelo.query.all()
+        return [documento_modelo.to_domain() for documento_modelo in documentos_modelo]

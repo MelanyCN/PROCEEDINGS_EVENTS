@@ -1,5 +1,6 @@
 from app.dominio.evento.evento import EventoRepositorio
 from app.infraestructura.modelo.evento_modelo import EventoModelo
+from app.dominio.evento.evento import Evento
 from app.infraestructura.extension import db
 
 class EventoRepositorioImpl(EventoRepositorio):
@@ -34,9 +35,18 @@ class EventoRepositorioImpl(EventoRepositorio):
         """
         try:
             evento_modelo = EventoModelo.query.get(id)
-            return evento_modelo.to_domain() if evento_modelo else None
+            if evento_modelo:
+                return Evento(
+                    id=evento_modelo.id,
+                    nombre=evento_modelo.nombre,
+                    fecha=evento_modelo.fecha,
+                    descripcion=evento_modelo.descripcion,
+                    hora=evento_modelo.hora,
+                    lugar=evento_modelo.lugar,
+                    edicion_id=evento_modelo.edicion_id
+                )
+            return None
         except Exception as e:
-            # Log o manejo del error según sea necesario.
             raise RuntimeError(f"Error al obtener el evento con ID {id}: {str(e)}")
 
     def actualizar(self, evento: EventoModelo):

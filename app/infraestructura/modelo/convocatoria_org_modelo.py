@@ -11,7 +11,7 @@ class ConvocatoriaOrgModelo(db.Model):
 
     # Clave foránea para la edición
     edicion_id = db.Column(db.Integer, db.ForeignKey('ediciones.id'), nullable=False)
-    edicion = db.relationship('EdicionModelo', back_populates='convocatorias')
+    edicion = db.relationship('EdicionModelo', back_populates='convocatorias_edicion')
 
     def to_dict(self):
         return {

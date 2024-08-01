@@ -14,6 +14,15 @@ class Edicion:
             "nombre": self.nombre,
             "fecha": self.fecha.isoformat() if self.fecha else None
         }
+    
+    @staticmethod
+    def from_dict(data):
+        return Edicion(
+            id=data.get('id'),
+            evento_id=data.get('evento_id'),
+            nombre=data.get('nombre'),
+            fecha=data.get('fecha')
+        )
 
 class EdicionRepositorio(ABC):
     """Interfaz para el repositorio de Edicion. Define métodos CRUD esenciales."""

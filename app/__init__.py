@@ -1,7 +1,7 @@
 from flask import Flask
 from config import Config
 from app.infraestructura.extension import db
-from app.presentacion.routes import configure_routes
+from app.presentacion.controller.routes import configure_routes
 
 def create_app():
     app = Flask(__name__)

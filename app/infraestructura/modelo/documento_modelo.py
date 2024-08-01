@@ -8,7 +8,11 @@ class DocumentoModelo(db.Model):
     titulo = db.Column(db.String(150), nullable=False)
     descripcion = db.Column(db.Text, nullable=True)
     fecha_publicacion = db.Column(db.Date, nullable=True)
-    autor_id = db.Column(db.Integer, nullable=False)
+    link_imagen = db.Column(db.Text, nullable=False)
+    link_documento = db.Column(db.Text, nullable=False)
+    autor_id = db.Column(db.Integer, db.ForeignKey('autores.id'), nullable=False)
+    
+    autor = db.relationship('AutorModelo', back_populates='documentos')
 
     def to_dict(self):
         return {
@@ -16,6 +20,8 @@ class DocumentoModelo(db.Model):
             "titulo": self.titulo,
             "descripcion": self.descripcion,
             "fecha_publicacion": self.fecha_publicacion.isoformat() if self.fecha_publicacion else None,
+            "link_imagen": self.link_imagen,
+            "link_documento": self.link_documento,
             "autor_id": self.autor_id
         }
 
@@ -26,7 +32,9 @@ class DocumentoModelo(db.Model):
             titulo=documento_dominio.titulo,
             descripcion=documento_dominio.descripcion,
             fecha_publicacion=documento_dominio.fecha_publicacion,
-            autor_id=documento_dominio.autor.id
+            link_imagen=documento_dominio.link_imagen,
+            link_documento=documento_dominio.link_documento,
+            autor_id=documento_dominio.autor_id
         )
 
     def to_domain(self):
@@ -35,5 +43,7 @@ class DocumentoModelo(db.Model):
             titulo=self.titulo,
             descripcion=self.descripcion,
             fecha_publicacion=self.fecha_publicacion,
-            autor=None
+            link_imagen=self.link_imagen,
+            link_documento=self.link_documento,
+            autor_id=self.autor_id
         )

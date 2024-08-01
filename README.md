@@ -1,341 +1,215 @@
-# Proyecto de Página Web de Proceedings de Eventos
+#### 1. Propósito del Proyecto
+El propósito de este proyecto es desarrollar un **Sistema de Publicación de Proceedings de Eventos**. Este sistema permite gestionar la organización de eventos académicos, incluyendo la gestión de artículos, autores, ediciones, convocatorias y programas. Facilita a los usuarios subir artículos, gestionar la información de los eventos, y proporciona una plataforma para la inscripción y participación en dichos eventos.
 
-Este proyecto es una aplicación web desarrollada en Flask y MongoEngine para gestionar los proceedings de eventos.
+#### 2. Funcionalidades
+- **Diagrama de Casos de Uso**: ![Ver imagen](#images/casos_de_uso.jpeg)
+- **Funcionalidades de Alto Nivel**:
+  - **Gestión de Eventos**: Creación y configuración de eventos, gestión de fechas importantes y temas de interés.
+  - **Gestión de Artículos**: Subida de artículos, revisión por pares (autor-documento).
+  - **Gestión de Convocatorias**: Creación y administración de convocatorias de artículos.
+  - **Inscripciones**: Gestión de inscripciones para eventos y expositores.
 
-## Requisitos Previos
+#### 3. Modelo de Dominio
+- **Diagrama de Clases y Módulos**: ![Ver diagrama de clases](#images/diagrama_clases.jpeg) ![Ver diagrama](#images/diagrama1.jpeg) ![Ver diagrama](#images/diagrama2.jpeg) ![Ver diagrama](#images/diagrama3.jpeg)
+  - Describe las entidades principales del sistema como `Evento`, `Autor`, `Documento`, `Edición`, `ConvocatoriaOrg`, entre otras, y sus relaciones.
 
-- Python 3.6 o superior
-- pip (gestor de paquetes de Python)
+#### 4. Arquitectura y Patrones
+- **Diagrama de Componentes o Paquetes**: ![Ver diagrama](#images/arquitectura.jpeg)
+  - Describe la arquitectura del sistema, incluyendo la separación en capas y los módulos de cada capa.
 
-## Descargar el repositorio
+### 5. Prácticas de Codificación Limpia Aplicadas
 
-- Clona el repositorio.
+**a. Nombres Descriptivos**
 
-```bash
-git clone https://github.com/GiomarMC/PROCEEDINGS_EVENTS.git
-```
-- Cambia a la carpeta del proyecto y continua con la instalacion del entorno virtual.
-
-## Creación y Activación de un Entorno Virtual
-
-### En Windows
-
-1. Abre una terminal (cmd, PowerShell, o Git Bash).
-2. Navega al directorio del proyecto.
-3. Crea un entorno virtual con el siguiente comando:
-
-    ```bash
-    py -3 -m venv .venv
-    ```
-
-4. Activa el entorno virtual:
-
-    ```bash
-    .venv\Scripts\activate
-    ```
-
-### En Linux/MacOS
-
-1. Abre una terminal.
-2. Navega al directorio del proyecto.
-3. Crea un entorno virtual con el siguiente comando:
-
-    ```bash
-    python3 -m venv .venv
-    ```
-
-4. Activa el entorno virtual:
-
-    ```bash
-    . .venv/bin/activate
-    ```
-
-## Instalación de Requerimientos
-
-Una vez que el entorno virtual esté activado, instala los paquetes necesarios usando el archivo `requirements.txt`.
-
-1. Asegúrate de estar en el directorio del proyecto y que el entorno virtual esté activado.
-2. Ejecuta el siguiente comando:
-
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-Esto instalará Flask, MongoEngine y todas las demás dependencias necesarias para el proyecto.
-
-# Implementaciones
-
-Este repositorio contiene la implementación de un sistema para la gestión de eventos y sus correspondientes entidades como documentos, autores, ediciones, inscripciones, expositores, y programas. La aplicación sigue los principios de la arquitectura limpia, utilizando Flask como framework web y SQLAlchemy con SQLite para la gestión de datos. A continuación, se describen las prácticas de codificación legible empleadas en este proyecto, junto con fragmentos de código ilustrativos.
-
-## Practicas de codificacion legible
-
-### Uso de Nombres descripctivos
-
-**Practica:** Asignar nombres claros y descriptivos a variables, funciones y clases para facilitar la comprensión del código. Esto incluye usar nombres que reflejen claramente la función o propósito del elemento de código.
-
-**Fragmento de codigo**
+El uso de nombres claros y descriptivos para funciones, clases y variables mejora la legibilidad y mantenibilidad del código.
 
 ```python
-class DocumentoRepositorioImpl(DocumentoRepositorio):
-    def crear(self, documento):
-        documento_modelo = DocumentoModelo.from_domain(documento)
-        db.session.add(documento_modelo)
-        db.session.commit()
-
+def obtener_evento(id: int) -> Evento:
+    """Obtiene un evento por su ID."""
+    evento_modelo = EventoModelo.query.get(id)
+    if evento_modelo:
+        return Evento(
+            id=evento_modelo.id,
+            nombre=evento_modelo.nombre,
+            fecha=evento_modelo.fecha,
+            descripcion=evento_modelo.descripcion,
+            hora=evento_modelo.hora,
+            lugar=evento_modelo.lugar,
+            edicion_id=evento_modelo.edicion_id
+        )
 ```
 
-### Separacion de Responsabilidades
+**b. Separación de Concerns**
 
-**Practica:** Mantener la lógica separada en diferentes capas de la aplicación, como controladores, repositorios y modelos. Esto mejora la organización del código y facilita el mantenimiento.
-
-**Fragmento de Codigo**
+El código se organiza de manera que las diferentes preocupaciones estén separadas, como la lógica de negocio y el acceso a datos.
 
 ```python
-class DocumentoRepositorioImpl(DocumentoRepositorio):
-    def crear(self, documento):
-        documento_modelo = DocumentoModelo.from_domain(documento)
-        db.session.add(documento_modelo)
-        db.session.commit()
+class DocumentoServicioImpl:
+    def __init__(self, documento_repo: DocumentoRepositorio):
+        self.documento_repo = documento_repo
+
+    def crear_documento(self, documento: Documento):
+        """Crea un nuevo documento."""
+        self.documento_repo.crear(documento)
 ```
 
-### Conversion entre Dominios y Modelos de Base de datos
+**c. Código Reutilizable**
 
-**Practica:** Implementar métodos para convertir entre objetos de dominio y modelos de base de datos. Esto permite una separación clara entre la lógica de negocio y la lógica de persistencia.
-
-**Fragmento de Codigo**
+Uso de funciones auxiliares y servicios para encapsular la lógica común, lo que facilita la reutilización y reduce la duplicación de código.
 
 ```python
-@staticmethod
-def from_domain(documento_dominio: DocumentoDominio):
-    return DocumentoModelo(
-        id=documento_dominio.id,
-        titulo=documento_dominio.titulo,
-        descripcion=documento_dominio.descripcion,
-        fecha_publicacion=documento_dominio.fecha_publicacion,
-        autor_id=documento_dominio.autor.id
-    )
-
-def to_domain(self):
-    return DocumentoDominio(
-        id=self.id,
-        titulo=self.titulo,
-        descripcion=self.descripcion,
-        fecha_publicacion=self.fecha_publicacion,
-        autor=None
-    )
-```
-
-### Uso de Metodos Estaticos para Conversiones
-
-**Practica:** Implementar métodos estáticos en los modelos de base de datos para convertir objetos de dominio a modelos de base de datos y viceversa. Esto centraliza la lógica de conversión y evita duplicación de código.
-
-**Fragmento de Codigo**
-
-```python
-@staticmethod
-def from_domain(documento_dominio: DocumentoDominio):
-    return DocumentoModelo(
-        id=documento_dominio.id,
-        titulo=documento_dominio.titulo,
-        descripcion=documento_dominio.descripcion,
-        fecha_publicacion=documento_dominio.fecha_publicacion,
-        autor_id=documento_dominio.autor.id
-    )
-```
-
-## Principios SOLID aplicados
-
-### Principio de Responsabilidad unica
-
-**Practica:** Una clase debe tener una única responsabilidad o razón para cambiar. Este principio se asegura de que cada clase se enfoque en una tarea específica, lo que facilita el mantenimiento y la comprensión del código.
-
-**Fragmento de Codigo** 
-
-```python
-class DocumentoRepositorioImpl(DocumentoRepositorio):
-    def crear(self, documento):
-        documento_modelo = DocumentoModelo.from_domain(documento)
-        db.session.add(documento_modelo)
-        db.session.commit()
-
-    def obtener(self, id):
-        documento_modelo = DocumentoModelo.query.get(id)
-        return documento_modelo.to_domain() if documento_modelo else None
-```
-
-### Principio Abierto/Cerrado
-
-**Practica:** El código debe estar abierto para extensión, pero cerrado para modificación. Esto significa que el comportamiento de una clase debe poder extenderse sin modificar su código fuente, facilitando la adición de nuevas funcionalidades sin afectar el código existente.
-
-```python
-@staticmethod
-def from_domain(documento_dominio: DocumentoDominio):
-    return DocumentoModelo(
-        id=documento_dominio.id,
-        titulo=documento_dominio.titulo,
-        descripcion=documento_dominio.descripcion,
-        fecha_publicacion=documento_dominio.fecha_publicacion,
-        autor_id=documento_dominio.autor.id
-    )
-
-def to_domain(self):
-    return DocumentoDominio(
-        id=self.id,
-        titulo=self.titulo,
-        descripcion=self.descripcion,
-        fecha_publicacion=self.fecha_publicacion,
-        autor=None
-    )
-```
-
-### Principio de Sustitucion de Liskov
-
-**Practica:** Las clases derivadas deben ser sustituibles por sus clases base sin alterar el comportamiento esperado del programa. En otras palabras, un objeto de una clase derivada debe poder reemplazar un objeto de la clase base sin que el programa falle o se comporte incorrectamente.
-
-**Fragmento de Codigo**
-
-```python
-class DocumentoRepositorioImpl(DocumentoRepositorio):
-    def __init__(self):
-        # This method is intentionally left empty.
-        pass
-
-    def crear(self, documento):
-        documento_modelo = DocumentoModelo.from_domain(documento)
-        db.session.add(documento_modelo)
-        db.session.commit()
-
-    def obtener(self, id):
-        documento_modelo = DocumentoModelo.query.get(id)
-        return documento_modelo.to_domain() if documento_modelo else None
-```
-
-## Estilos de Programacion Aplicados
-
-### Manejo de Errores/Excepciones
-
-**Descripcion:** Este estilo se enfoca en la captura y manejo adecuado de errores y excepciones, garantizando que la aplicación pueda manejar situaciones inesperadas de manera controlada y proporcionar mensajes de error claros al usuario o al sistema.
-
-**Fragmento de codigo**
-
-```python
-def crear_documento():
-    data = request.get_json()
+def parse_fecha(fecha_str: str) -> Optional[datetime]:
     try:
-        fecha_publicacion = data.get('fecha_publicacion')
-        if fecha_publicacion:
-            data['fecha_publicacion'] = datetime.strptime(fecha_publicacion, "%Y-%m-%d").date()
-        
-        autor_data = data.pop('autor', {})
-        autor = Autor(**autor_data)
-        documento = Documento(autor=autor, **data)
-        documento_controller.crear_documento(documento)
-        return jsonify(documento.to_dict()), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        return datetime.fromisoformat(fecha_str)
+    except ValueError as e:
+        print(f"Error al parsear la fecha: {e}")
+        return None
 ```
 
-### Tablas Persistentes
+Estas prácticas y principios garantizan que el código sea fácil de entender, mantener y escalar.
 
-**Descripcion:** Este estilo implica el uso de tablas en una base de datos para almacenar y persistir datos de manera estructurada. Es común en aplicaciones que requieren que los datos sean duraderos y accesibles para futuras consultas o modificaciones.
+### 6. Estilos de Programación Aplicados
 
-**Fragmentos de Codigo**
+**a. Cookbook**
+
+En el proyecto, se utiliza un estilo "Cookbook" para manejar funciones auxiliares y utilitarias que se pueden reutilizar en varias partes del código. Este estilo ayuda a mantener el código organizado y modular.
 
 ```python
-from app.infraestructura.extension import db
-from app.dominio.documento.documento import Documento as DocumentoDominio
+# Funciones auxiliares para convertir fechas y datos de autor
+def parse_fecha(fecha_str: str) -> Optional[datetime]:
+    try:
+        return datetime.fromisoformat(fecha_str)
+    except ValueError as e:
+        print(f"Error al parsear la fecha: {e}")
+        return None
 
-class DocumentoModelo(db.Model):
-    __tablename__ = 'documentos'
-    
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    titulo = db.Column(db.String(150), nullable=False)
-    descripcion = db.Column(db.Text, nullable=True)
-    fecha_publicacion = db.Column(db.Date, nullable=True)
-    autor_id = db.Column(db.Integer, nullable=False)
-
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "titulo": self.titulo,
-            "descripcion": self.descripcion,
-            "fecha_publicacion": self.fecha_publicacion.isoformat() if self.fecha_publicacion else None,
-            "autor_id": self.autor_id
-        }
-
-    @staticmethod
-    def from_domain(documento_dominio: DocumentoDominio):
-        return DocumentoModelo(
-            id=documento_dominio.id,
-            titulo=documento_dominio.titulo,
-            descripcion=documento_dominio.descripcion,
-            fecha_publicacion=documento_dominio.fecha_publicacion,
-            autor_id=documento_dominio.autor.id
+def parse_autor(autor_data: Dict) -> Optional[Autor]:
+    if autor_data:
+        return Autor(
+            id=autor_data.get('id'),
+            nombre=autor_data.get('nombre'),
+            email=autor_data.get('email'),
+            afiliacion=autor_data.get('afiliacion'),
+            nacionalidad=autor_data.get('nacionalidad'),
+            area_interes=autor_data.get('area_interes'),
+            link_foto=autor_data.get('link_foto')
         )
-
-    def to_domain(self):
-        return DocumentoDominio(
-            id=self.id,
-            titulo=self.titulo,
-            descripcion=self.descripcion,
-            fecha_publicacion=self.fecha_publicacion,
-            autor=None
-        )
+    return None
 ```
 
-### API RESTful
+**b. Error/Exception Handling**
 
-**Descripcion:** RESTful es un estilo arquitectónico para diseñar servicios web que utilizan operaciones HTTP estándar. Este estilo se centra en el uso de verbos HTTP para operaciones CRUD y en la estructuración de las URL de manera lógica y consistente.
+El manejo adecuado de errores y excepciones es fundamental para la robustez del sistema. Se captura y maneja las excepciones de manera que el sistema pueda recuperarse o notificar adecuadamente al usuario.
 
-**Fragmento de Codigo**
+```python
+def crear(self, edicion: Edicion):
+    """Agrega una nueva edición a la base de datos."""
+    try:
+        edicion_modelo = EdicionModelo.from_domain(edicion)
+        db.session.add(edicion_modelo)
+        db.session.commit()
+        edicion.id = edicion_modelo.id
+    except Exception as e:
+        db.session.rollback()
+        raise RuntimeError(f"Error al crear la edición: {str(e)}")
+```
+
+**c. Pipeline**
+
+Este estilo se aplica cuando se realiza una serie de pasos secuenciales, como la configuración de rutas en el sistema.
 
 ```python
 def configure_routes(app):
-
-    def documento_no_encontrado():
-        return jsonify({"error": "Documento no encontrado"}), 404
-
-    @app.route('/documento', methods=['POST'])
-    def crear_documento():
-        data = request.get_json()
-        try:
-            fecha_publicacion = data.get('fecha_publicacion')
-            if fecha_publicacion:
-                data['fecha_publicacion'] = datetime.strptime(fecha_publicacion, "%Y-%m-%d").date()
-            
-            autor_data = data.pop('autor', {})
-            autor = Autor(**autor_data)
-            documento = Documento(autor=autor, **data)
-            documento_controller.crear_documento(documento)
-            return jsonify(documento.to_dict()), 201
-        except Exception as e:
-            return jsonify({"error": str(e)}), 400
-
-    @app.route('/documento/<int:id>', methods=['GET'])
-    def obtener_documento(id):
-        documento = documento_controller.obtener_documento(id)
-        if documento:
-            return jsonify(documento.to_dict())
-        else:
-            return documento_no_encontrado()
-
-    @app.route('/documento/<int:id>', methods=['PUT'])
-    def actualizar_documento(id):
-        data = request.get_json()
-        documento = documento_controller.obtener_documento(id)
-        if documento:
-            for key, value in data.items():
-                setattr(documento, key, value)
-            documento_controller.actualizar_documento(documento)
-            return jsonify(documento.to_dict())
-        else:
-            return documento_no_encontrado()
-
-    @app.route('/documento/<int:id>', methods=['DELETE'])
-    def eliminar_documento(id):
-        resultado = documento_controller.eliminar_documento(id)
-        if resultado:
-            return jsonify({"mensaje": "Documento eliminado"}), 200
-        else:
-            return documento_no_encontrado()
+    """Configura las rutas de la aplicación."""
+    configurar_rutas_documentos(app)
+    configurar_rutas_eventos(app)
+    configurar_rutas_ediciones(app)
+    configurar_rutas_expositor(app)
+    configurar_rutas_convocatorias(app)
+    configurar_rutas_inscripciones(app)
+    configurar_rutas_autores(app)
 ```
+
+### 7. Principios SOLID Aplicados
+
+**a. Single Responsibility Principle (SRP)**
+
+Cada clase y función debe tener una única responsabilidad. Este principio se aplica al separar las responsabilidades en diferentes clases y servicios.
+
+```python
+class EdicionRepositorioImpl(EdicionRepositorio):
+    """Implementación del repositorio para la entidad Edicion."""
+    # Responsabilidad única de manejar operaciones de base de datos de ediciones
+
+class DocumentoServicioImpl:
+    """Servicio de negocio para manejar documentos."""
+    # Responsabilidad única de manejar lógica de negocio de documentos
+```
+
+**b. Open/Closed Principle (OCP)**
+
+El sistema está diseñado para ser extendido sin modificar el código existente, lo que facilita la adición de nuevas funcionalidades.
+
+```python
+class DocumentoServicioImpl:
+    def __init__(self, documento_repo: DocumentoRepositorio):
+        self.documento_repo = documento_repo
+
+    def crear_documento(self, documento: Documento):
+        """Crea un nuevo documento."""
+        self.documento_repo.crear(documento)
+```
+
+**c. Interface Segregation Principle (ISP)**
+
+Las interfaces están diseñadas para ser específicas a un cliente, asegurando que los clientes no se vean obligados a implementar métodos que no usan.
+
+```python
+class EventoRepositorio(ABC):
+    """Interfaz para el repositorio de Evento. Define métodos CRUD esenciales."""
+
+    @abstractmethod
+    def crear(self, evento: Evento):
+        pass
+
+    @abstractmethod
+    def obtener(self, id: int) -> Evento:
+        pass
+```
+
+
+
+#### 8. Conceptos DDD Aplicados
+- **Entidades y Objetos de Valor**: Definición de entidades como `Evento`, `Autor`, y objetos de valor asociados.
+- **Agregados y Módulos**: Agrupación lógica de entidades relacionadas.
+- **Repositorios**: Implementación de patrones de repositorio para manejar el acceso a datos.
+
+#### 9. Arquitectura en Capas
+- **Presentación**: Capas de vistas y controladores para la interacción con el usuario.
+- **Aplicación**: Lógica de negocio encapsulada en servicios.
+- **Dominio**: Definición de las reglas de negocio y entidades del sistema.
+- **Infraestructura**: Manejo de la persistencia de datos y conexión con bases de datos.
+
+---
+
+### Configuración de Rutas (Extracto de `routes.py`)
+- **Rutas de Autor**:
+  ```python
+  @app.route('/autor', methods=['POST'])
+  def crear_autor():
+      data = request.get_json()
+      autor = Autor(
+          id=None,
+          nombre=data.get('nombre'),
+          email=data.get('email'),
+          afiliacion=data.get('afiliacion'),
+          nacionalidad=data.get('nacionalidad'),
+          area_interes=data.get('area_interes'),
+          link_foto=data.get('link_foto')
+      )
+      try:
+          autor_servicio.crear_autor(autor)
+          return jsonify(autor.to_dict()), 201
+      except Exception as e:
+          return jsonify({"error": f"Error al crear autor: {str(e)}"}), 400
+  ```

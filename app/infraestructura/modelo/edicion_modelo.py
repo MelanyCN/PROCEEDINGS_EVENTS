@@ -8,9 +8,11 @@ class EdicionModelo(db.Model):
     __tablename__ = 'ediciones'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    evento_id = db.Column(db.Integer, nullable=False)
     nombre = db.Column(db.String(150), nullable=False)
     fecha = db.Column(db.Date, nullable=False)
+
+    # Relación con eventos
+    eventos = db.relationship('EventoModelo', backref='edicion', lazy=True)
 
     def to_dict(self):
         """Convierte la instancia de EdicionModelo en un diccionario.
@@ -20,7 +22,6 @@ class EdicionModelo(db.Model):
         """
         return {
             "id": self.id,
-            "evento_id": self.evento_id,
             "nombre": self.nombre,
             "fecha": self.fecha.isoformat() if self.fecha else None
         }
@@ -37,7 +38,6 @@ class EdicionModelo(db.Model):
         """
         return EdicionModelo(
             id=edicion_dominio.id,
-            evento_id=edicion_dominio.evento_id,
             nombre=edicion_dominio.nombre,
             fecha=edicion_dominio.fecha
         )
@@ -50,7 +50,6 @@ class EdicionModelo(db.Model):
         """
         return EdicionDominio(
             id=self.id,
-            evento_id=self.evento_id,
             nombre=self.nombre,
             fecha=self.fecha
         )

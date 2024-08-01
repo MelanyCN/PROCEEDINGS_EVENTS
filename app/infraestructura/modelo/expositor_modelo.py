@@ -8,7 +8,14 @@ class ExpositorModelo(db.Model):
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nombre = db.Column(db.String(150), nullable=False)
+    apellido = db.Column(db.String(150), nullable=False)
+    ocupacion = db.Column(db.String(150), nullable=True)
     email = db.Column(db.String(150), nullable=False, unique=True)
+    img_perfil_url = db.Column(db.String(255), nullable=True)
+    trayectoria_academica = db.Column(db.Text, nullable=True)
+
+    evento_id = db.Column(db.Integer, db.ForeignKey('eventos.id'), nullable=False)
+    evento = db.relationship('EventoModelo', backref=db.backref('expositores', lazy=True))
 
     def to_dict(self):
         """Convierte la instancia de ExpositorModelo en un diccionario.
@@ -19,7 +26,12 @@ class ExpositorModelo(db.Model):
         return {
             "id": self.id,
             "nombre": self.nombre,
-            "email": self.email
+            "apellido": self.apellido,
+            "ocupacion": self.ocupacion,
+            "email": self.email,
+            "img_perfil_url": self.img_perfil_url,
+            "trayectoria_academica": self.trayectoria_academica,
+            "evento_id": self.evento_id
         }
 
     @staticmethod
@@ -35,7 +47,12 @@ class ExpositorModelo(db.Model):
         return ExpositorModelo(
             id=expositor_dominio.id,
             nombre=expositor_dominio.nombre,
-            email=expositor_dominio.email
+            apellido=expositor_dominio.apellido,
+            ocupacion=expositor_dominio.ocupacion,
+            email=expositor_dominio.email,
+            img_perfil_url=expositor_dominio.img_perfil_url,
+            trayectoria_academica=expositor_dominio.trayectoria_academica,
+            evento_id=expositor_dominio.evento_id
         )
 
     def to_domain(self):
@@ -47,5 +64,10 @@ class ExpositorModelo(db.Model):
         return ExpositorDominio(
             id=self.id,
             nombre=self.nombre,
-            email=self.email
+            apellido=self.apellido,
+            ocupacion=self.ocupacion,
+            email=self.email,
+            img_perfil_url=self.img_perfil_url,
+            trayectoria_academica=self.trayectoria_academica,
+            evento_id=self.evento_id
         )

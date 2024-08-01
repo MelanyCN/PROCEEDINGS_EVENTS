@@ -1,4 +1,4 @@
-from app.dominio.evento.edicion_repositorio import EdicionRepositorio
+from app.dominio.evento.edicion import Edicion, EdicionRepositorio
 from app.infraestructura.modelo.edicion_modelo import EdicionModelo
 from app.infraestructura.extension import db
 
@@ -7,21 +7,20 @@ class EdicionRepositorioImpl(EdicionRepositorio):
 
     def __init__(self):
         # Constructor vacío, no se requiere inicialización específica.
-        # Este metodo esta intencionalmente vacio
         pass
 
-    def crear(self, edicion: EdicionModelo):
+    def crear(self, edicion: Edicion):
         """Agrega una nueva edición a la base de datos.
 
         Args:
-            edicion (EdicionModelo): La edición a ser agregada.
+            edicion (Edicion): La edición a ser agregada.
         """
         try:
-            db.session.add(edicion)
+            edicion_modelo = EdicionModelo.from_domain(edicion)
+            db.session.add(edicion_modelo)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
-            # Log o manejo del error según sea necesario.
             raise RuntimeError(f"Error al crear la edición: {str(e)}")
 
     def obtener(self, id: int):
@@ -31,23 +30,22 @@ class EdicionRepositorioImpl(EdicionRepositorio):
             id (int): ID de la edición a buscar.
 
         Returns:
-            EdicionDominio | None: La edición encontrada o None si no se encuentra.
+            Edicion | None: La edición encontrada o None si no se encuentra.
         """
         try:
             edicion_modelo = EdicionModelo.query.get(id)
             return edicion_modelo.to_domain() if edicion_modelo else None
         except Exception as e:
-            # Log o manejo del error según sea necesario.
             raise RuntimeError(f"Error al obtener la edición con ID {id}: {str(e)}")
 
-    def actualizar(self, edicion: EdicionModelo):
+    def actualizar(self, edicion: Edicion):
         """Actualiza una edición existente en la base de datos.
 
         Args:
-            edicion (EdicionModelo): La edición con los datos actualizados.
+            edicion (Edicion): La edición con los datos actualizados.
 
         Returns:
-            EdicionDominio | None: La edición actualizada o None si no se encuentra.
+            Edicion | None: La edición actualizada o None si no se encuentra.
         """
         try:
             edicion_modelo = EdicionModelo.query.get(edicion.id)
@@ -60,7 +58,6 @@ class EdicionRepositorioImpl(EdicionRepositorio):
             return None
         except Exception as e:
             db.session.rollback()
-            # Log o manejo del error según sea necesario.
             raise RuntimeError(f"Error al actualizar la edición: {str(e)}")
 
     def eliminar(self, id: int):
@@ -81,5 +78,4 @@ class EdicionRepositorioImpl(EdicionRepositorio):
             return False
         except Exception as e:
             db.session.rollback()
-            # Log o manejo del error según sea necesario.
             raise RuntimeError(f"Error al eliminar la edición con ID {id}: {str(e)}")

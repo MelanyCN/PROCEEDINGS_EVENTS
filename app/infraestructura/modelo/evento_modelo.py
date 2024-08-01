@@ -1,5 +1,6 @@
 from app.infraestructura.extension import db
 from app.dominio.evento.evento import Evento as EventoDominio
+from app.dominio.evento.edicion import Edicion as EdicionDominio
 
 class EventoModelo(db.Model):
     """Modelo de datos para Eventos en la base de datos."""
@@ -13,6 +14,11 @@ class EventoModelo(db.Model):
     hora = db.Column(db.Time, nullable=True)
     lugar = db.Column(db.String(100), nullable=True)
 
+    edicion_id = db.Column(db.Integer, db.ForeignKey('ediciones.id'), nullable=True)
+    edicion = db.relationship('EdicionModelo', backref=db.backref('eventos', lazy=True))
+
+    inscripciones = db.relationship('InscripcionModelo', backref='evento', lazy=True)
+
     def to_dict(self):
         """Convierte la instancia de EventoModelo en un diccionario.
 
@@ -25,7 +31,10 @@ class EventoModelo(db.Model):
             "fecha": self.fecha.isoformat() if self.fecha else None,
             "descripcion": self.descripcion,
             "hora": self.hora.isoformat() if self.hora else None,
-            "lugar": self.lugar
+            "lugar": self.lugar,
+            "edicion_id": self.edicion_id,
+            "edicion": self.edicion.to_dict() if self.edicion else None,
+            "inscripciones": [inscripcion.to_dict() for inscripcion in self.inscripciones]
         }
 
     @staticmethod
@@ -44,7 +53,8 @@ class EventoModelo(db.Model):
             fecha=evento_dominio.fecha,
             descripcion=evento_dominio.descripcion,
             hora=evento_dominio.hora,
-            lugar=evento_dominio.lugar
+            lugar=evento_dominio.lugar,
+            edicion_id=evento_dominio.edicion_id
         )
 
     def to_domain(self):
@@ -59,5 +69,6 @@ class EventoModelo(db.Model):
             fecha=self.fecha,
             descripcion=self.descripcion,
             hora=self.hora,
-            lugar=self.lugar
+            lugar=self.lugar,
+            edicion_id=self.edicion_id
         )

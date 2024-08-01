@@ -1,9 +1,24 @@
-from app.dominio.evento.edicion import Edicion
-from app.dominio.evento.edicion_repositorio import EdicionRepositorio
-from app.aplicacion.controller.edicion_controller import EdicionController
+from abc import ABC, abstractmethod
+from app.dominio.evento.edicion import Edicion, EdicionRepositorio
 
-# Implementación del controlador de ediciones
-class EdicionControllerImpl(EdicionController):
+class EdicionServicio(ABC):
+    @abstractmethod
+    def crear_edicion(self, edicion: Edicion):
+        pass
+
+    @abstractmethod
+    def obtener_edicion(self, id: int) -> Edicion:
+        pass
+
+    @abstractmethod
+    def actualizar_edicion(self, edicion: Edicion):
+        pass
+
+    @abstractmethod
+    def eliminar_edicion(self, id: int):
+        pass
+
+class EdicionServicioImpl(EdicionServicio):
     def __init__(self, edicion_repo: EdicionRepositorio):
         """
         Inicializa el controlador con un repositorio de ediciones.
@@ -51,3 +66,4 @@ class EdicionControllerImpl(EdicionController):
             id (int): ID de la edición a eliminar.
         """
         self.edicion_repo.eliminar(id)
+

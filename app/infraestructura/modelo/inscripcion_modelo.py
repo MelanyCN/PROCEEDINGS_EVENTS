@@ -7,9 +7,15 @@ class InscripcionModelo(db.Model):
     __tablename__ = 'inscripciones'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    evento_id = db.Column(db.Integer, nullable=False)
-    usuario_id = db.Column(db.Integer, nullable=False)
-    fecha = db.Column(db.Date, nullable=False)
+    nombre = db.Column(db.String(50), nullable=False)
+    apellidos = db.Column(db.String(80), nullable=False)
+    dni = db.Column(db.String(8), nullable=False)
+    ocupacion = db.Column(db.String(50), nullable=False)
+    correo = db.Column(db.String(50), nullable=False)
+    vaucher_url = db.Column(db.String(200), nullable=False)
+
+    evento_id = db.Column(db.Integer, db.ForeignKey('eventos.id'), nullable=False)
+    evento = db.relationship('EventoModelo', backref=db.backref('inscripciones', lazy=True))
 
     def to_dict(self):
         """Convierte la instancia de InscripcionModelo en un diccionario.
@@ -19,9 +25,13 @@ class InscripcionModelo(db.Model):
         """
         return {
             "id": self.id,
-            "evento_id": self.evento_id,
-            "usuario_id": self.usuario_id,
-            "fecha": self.fecha.isoformat() if self.fecha else None
+            "nombre": self.nombre,
+            "apellidos": self.apellidos,
+            "dni": self.dni,
+            "ocupacion": self.ocupacion,
+            "correo": self.correo,
+            "vaucher_url": self.vaucher_url,
+            "evento_id": self.evento_id
         }
 
     @staticmethod
@@ -36,9 +46,13 @@ class InscripcionModelo(db.Model):
         """
         return InscripcionModelo(
             id=inscripcion_dominio.id,
-            evento_id=inscripcion_dominio.evento_id,
-            usuario_id=inscripcion_dominio.usuario_id,
-            fecha=inscripcion_dominio.fecha
+            nombre=inscripcion_dominio.nombre,
+            apellidos=inscripcion_dominio.apellidos,
+            dni=inscripcion_dominio.dni,
+            ocupacion=inscripcion_dominio.ocupacion,
+            correo=inscripcion_dominio.correo,
+            vaucher_url=inscripcion_dominio.vaucher_url,
+            evento_id=inscripcion_dominio.evento_id
         )
 
     def to_domain(self):
@@ -49,7 +63,11 @@ class InscripcionModelo(db.Model):
         """
         return InscripcionDominio(
             id=self.id,
-            evento_id=self.evento_id,
-            usuario_id=self.usuario_id,
-            fecha=self.fecha
+            nombre=self.nombre,
+            apellidos=self.apellidos,
+            dni=self.dni,
+            ocupacion=self.ocupacion,
+            correo=self.correo,
+            vaucher_url=self.vaucher_url,
+            evento_id=self.evento_id
         )

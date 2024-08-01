@@ -1,4 +1,4 @@
-from app.dominio.evento.evento_repositorio import EventoRepositorio
+from app.dominio.evento.evento import EventoRepositorio
 from app.infraestructura.modelo.evento_modelo import EventoModelo
 from app.infraestructura.extension import db
 
@@ -53,6 +53,9 @@ class EventoRepositorioImpl(EventoRepositorio):
             if evento_modelo:
                 evento_modelo.nombre = evento.nombre
                 evento_modelo.fecha = evento.fecha
+                evento_modelo.lugar = evento.lugar
+                evento_modelo.descripcion = evento.descripcion
+                evento_modelo.hora = evento.hora
                 db.session.commit()
                 return evento_modelo.to_domain()
             return None

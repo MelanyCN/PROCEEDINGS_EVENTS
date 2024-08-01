@@ -1,4 +1,4 @@
-from app.dominio.evento.convocatoria_org_repositorio import ConvocatoriaOrgRepositorio
+from app.dominio.evento.convocatoria_org import ConvocatoriaOrgRepositorio
 from app.infraestructura.modelo.convocatoria_org_modelo import ConvocatoriaOrgModelo
 from app.infraestructura.extension import db
 

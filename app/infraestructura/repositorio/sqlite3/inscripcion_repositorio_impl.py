@@ -1,4 +1,4 @@
-from app.dominio.evento.inscripcion_repositorio import InscripcionRepositorio
+from app.dominio.evento.inscripcion import InscripcionRepositorio
 from app.infraestructura.modelo.inscripcion_modelo import InscripcionModelo
 from app.infraestructura.extension import db
 
@@ -30,7 +30,7 @@ class InscripcionRepositorioImpl(InscripcionRepositorio):
             id (int): El ID de la inscripción a buscar.
 
         Returns:
-            InscripcionDominio | None: La inscripción encontrada o None si no se encuentra.
+            InscripcionModelo | None: La inscripción encontrada o None si no se encuentra.
         """
         try:
             inscripcion_modelo = InscripcionModelo.query.get(id)
@@ -46,14 +46,18 @@ class InscripcionRepositorioImpl(InscripcionRepositorio):
             inscripcion (InscripcionModelo): La inscripción con los datos actualizados.
 
         Returns:
-            InscripcionDominio | None: La inscripción actualizada o None si no se encuentra.
+            InscripcionModelo | None: La inscripción actualizada o None si no se encuentra.
         """
         try:
             inscripcion_modelo = InscripcionModelo.query.get(inscripcion.id)
             if inscripcion_modelo:
+                inscripcion_modelo.nombre = inscripcion.nombre
+                inscripcion_modelo.apellidos = inscripcion.apellidos
+                inscripcion_modelo.dni = inscripcion.dni
+                inscripcion_modelo.ocupacion = inscripcion.ocupacion
+                inscripcion_modelo.correo = inscripcion.correo
+                inscripcion_modelo.vaucher_url = inscripcion.vaucher_url
                 inscripcion_modelo.evento_id = inscripcion.evento_id
-                inscripcion_modelo.usuario_id = inscripcion.usuario_id
-                inscripcion_modelo.fecha = inscripcion.fecha
                 db.session.commit()
                 return inscripcion_modelo.to_domain()
             return None

@@ -1,6 +1,26 @@
 from abc import ABC, abstractmethod
 
-# Entidad
+class AutorRepositorio(ABC):
+    @abstractmethod
+    def crear(self, autor):
+        pass
+
+    @abstractmethod
+    def obtener(self, id):
+        pass
+
+    @abstractmethod
+    def actualizar(self, autor):
+        pass
+
+    @abstractmethod
+    def eliminar(self, id):
+        pass
+    
+    @abstractmethod
+    async def listar_autores(self, id_documento):
+        pass
+
 class Autor:
     def __init__(self, id=None, nombre=None, email=None):
         self.id = id
@@ -19,21 +39,3 @@ class Autor:
             "nombre": self.nombre,
             "email": self.email
         }
-
-# Repositorio Abstracto
-class AutorRepositorio(ABC):
-    @abstractmethod
-    def crear(self, autor: Autor):
-        pass
-
-    @abstractmethod
-    def obtener(self, id: str):
-        pass
-
-    @abstractmethod
-    def actualizar(self, autor: Autor):
-        pass
-
-    @abstractmethod
-    def eliminar(self, id: str):
-        pass

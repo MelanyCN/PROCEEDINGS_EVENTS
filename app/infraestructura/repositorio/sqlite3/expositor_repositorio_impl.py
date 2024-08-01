@@ -1,4 +1,4 @@
-from app.dominio.evento.expositor_repositorio import ExpositorRepositorio
+from app.dominio.evento.expositor import ExpositorRepositorio
 from app.infraestructura.modelo.expositor_modelo import ExpositorModelo
 from app.infraestructura.extension import db
 
@@ -59,7 +59,6 @@ class ExpositorRepositorioImpl(ExpositorRepositorio):
             return None
         except Exception as e:
             db.session.rollback()
-            # Log o manejo del error según sea necesario.
             raise RuntimeError(f"Error al actualizar el expositor: {str(e)}")
 
     def eliminar(self, id: int):
@@ -80,5 +79,4 @@ class ExpositorRepositorioImpl(ExpositorRepositorio):
             return False
         except Exception as e:
             db.session.rollback()
-            # Log o manejo del error según sea necesario.
             raise RuntimeError(f"Error al eliminar el expositor con ID {id}: {str(e)}")
